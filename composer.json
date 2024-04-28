@@ -1,0 +1,22 @@
+{
+    "name": "cr0/interceptor-php",
+    "description": "Simple AOP interceptor with Dependency Injection Container.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Cr0\\Interceptor\\": "kernel/",
+            "Cr0\\Generated\\" : "generated/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Bruno Alves",
+            "email": "boteistem@gmail.com"
+        }
+    ],
+    "require": {
+        "php-di/php-di": "^7.0",
+        "nette/php-generator": "^4.1"
+    }
+}
