@@ -5,8 +5,8 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Cr0\\Interceptor\\": "kernel/",
-            "Cr0\\Generated\\" : "generated/"
+            "CR0\\Interceptor\\": "kernel/",
+            "CR0\\Generated\\" : "generated/"
         }
     },
     "authors": [

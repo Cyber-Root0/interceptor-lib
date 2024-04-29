@@ -4,10 +4,10 @@ use CR0\Interceptor\DI\ProvideContainer;
 use DI\Container;
 class Kernel
 {
-    private static self $instance;
-    private static array $definitions;
-    private static array $proxys;
-    private ProvideContainer $provider;
+    private static $instance = null;
+    private array $definitions = [];
+    private array $proxys = [];
+    private $provider = null;
     /**
      * __construct
      *
@@ -15,8 +15,9 @@ class Kernel
      */
     private function __construct(array $definitions = []){
         if (!empty($definitions)){
-            self::$definitions = $definitions;
+            $this->$definitions = $definitions;
         }
+        $this->provider = new ProvideContainer($this);
     }    
     /**
      * get the simple and shared instance
@@ -31,7 +32,7 @@ class Kernel
     }
     public function addProxy(string $class, string $aspect){
         $this->validClass($class)->validClass($aspect);
-        self::$proxys[$class] = $aspect;
+        $this->proxys[$class] = $aspect;
     }    
     /**
      * valid if the class exists
@@ -45,12 +46,18 @@ class Kernel
         }
         return $this;
     }
+    public function getProxys() : array{
+        return $this->proxys;
+    }
+    public function getDefinitions() : array{
+        return $this->definitions;
+    }
     /**
      * build
      *
      * @return Container
      */
     public function build() : Container{
-        return $this->provider->execute(self::$definitions, self::$proxys);
+        return $this->provider->execute();
     }
 }
