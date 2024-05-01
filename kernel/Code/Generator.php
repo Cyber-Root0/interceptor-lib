@@ -25,7 +25,7 @@ class Generator
         }
     }
     /**
-     * generate
+     * generatee
      *
      * @param string $origem
      * @param string $aspect
