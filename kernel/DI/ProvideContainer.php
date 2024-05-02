@@ -39,18 +39,21 @@ class ProvideContainer
                 'proxyname' => $finalname,
                 'aspect' => $aspect
             ];
-            $definitions[$class] = $finalname;
+            //$definitions[$class] = $finalname;
+            $definitions[$class] = function($container) use ($finalname){
+                return new $finalname();
+            };
         }
         return $definitions;
     }    
     /**
-     * get final class name, example: CR0\Generated\ProductFactory
+     * get final class name, example: CR0\Generated\ProductProxy
      *
      * @param  string $classname
      * @return string
      */
     private function getFinalNameClass(string $classname){
         $path = explode('\\', $classname);
-        return self::namespace.$path[count($path)-1]."Factory";
+        return self::namespace.$path[count($path)-1]."Proxy";
     }
 }

@@ -1,6 +1,7 @@
 <?php
 namespace CR0\Interceptor;
 use CR0\Interceptor\DI\ProvideContainer;
+use CR0\Interceptor\DI\Config\ProxyList;
 use DI\Container;
 class Kernel
 {
@@ -58,6 +59,18 @@ class Kernel
      * @return Container
      */
     public function build() : Container{
+        ProxyList::setList($this->proxys);
         return $this->provider->execute();
+       
+    }    
+    /**
+     * reset
+     *
+     * @return void
+     */
+    private function reset(){
+        $this->definitions = [];
+        $this->proxys = [];
+        self::$instance = null;
     }
 }

@@ -6,7 +6,8 @@
     "autoload": {
         "psr-4": {
             "CR0\\Interceptor\\": "kernel/",
-            "CR0\\Generated\\" : "generated/"
+            "CR0\\Generated\\" : "generated/",
+            "CR0\\Interceptor\\Example\\" : "example/"
         }
     },
     "authors": [

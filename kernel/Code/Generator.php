@@ -3,10 +3,13 @@ namespace Cr0\Interceptor\Code;
 
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpNamespace;
+use CR0\Interceptor\Aspect\Base;
 use CR0\Interceptor\Kernel;
 
 class Generator
 {
+    public string $ext = '.php';
+    public string $path = __DIR__.'/../../generated/';
     public function __construct(
         protected Kernel $kernel
     ) {
@@ -18,14 +21,28 @@ class Generator
      */
     public function execute(array $definitions)
     {
-        foreach ($definitions as $origem => $aspect) {
-            $proxyname = $aspect['proxyname'];
-            $aspect = $aspect['aspect'];
-            $this->generate($origem, $aspect, $proxyname);
+        if (!$this->isCache()){
+            $this->clearFolder();
+            foreach ($definitions as $origem => $aspect) {
+                $proxyname = $aspect['proxyname'];
+                $aspect = $aspect['aspect'];
+                $this->generate($origem, $aspect, $proxyname);
+            }
+        }
+    }
+    public function isCache(){
+        return true;
+    }
+    public function clearFolder(){
+        $files = glob($this->path.'/*');  
+        foreach($files as $file) { 
+            if(is_file($file)){
+                unlink($file);
+            }   
         }
     }
     /**
-     * generatee
+     * generate
      *
      * @param string $origem
      * @param string $aspect
@@ -34,32 +51,34 @@ class Generator
      */
     private function generate(string $origem, string $aspect, string $proxyname): string
     {
-        $finalClassname = explode('\\', $aspect);
+        $finalClassname = explode('\\', $proxyname);
         $finalClassname = $finalClassname[count($finalClassname) - 1];
 
         $namespace = new PhpNamespace('CR0\Generated');
 
         $object = $namespace->addClass($finalClassname);
         $object->setExtends($origem);
-        $object->addMethod('__call')->setBody(
-            'return true;'
-        );
-        $this->setMethods($object, $aspect);
-        //exit;
+        $object->addTrait(Base::class);
+        $object = $this->setMethods($object, $aspect);
         $namespace->add($object);
-        echo $namespace;
-
+        $bodyContent = $namespace->__toString();
+        $bodyContent = '<?php'."\n".$bodyContent;
+        $this->save($bodyContent, $finalClassname);
         return '';
     }
     /**
-     * setMethods
+     * change public methods to private, for call method magics on proxy
      *
      * @param  object $object
      * @param  string $aspect
-     * @return void
+     * @return ClassType
      */
     private function setMethods($object, string $aspect)
     {
+        $clientReflection = new \ReflectionClass($aspect);
+        $methods = $clientReflection->getMethods(\ReflectionMethod::IS_PUBLIC);
+        return $object;
+        /*
         $clientReflection = new \ReflectionClass($aspect);
         $methods = $clientReflection->getMethods(\ReflectionMethod::IS_PUBLIC);
         foreach ($methods as $method) {
@@ -73,6 +92,11 @@ class Generator
                 echo $methodBody."\n\n";
             }
         }
+        */
+    }
+    private function save($content, $fileName){
+        $file = $this->getFileName($fileName);
+        file_put_contents($file, $content);
     }
     private function rules(string $methodName): bool
     {
@@ -84,5 +108,8 @@ class Generator
             return true;
         }
         return false;
+    }
+    private function getFileName(string $class){
+        return $this->path.$class.$this->ext;
     }
 }
