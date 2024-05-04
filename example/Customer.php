@@ -5,4 +5,5 @@ class Customer
     public function teste(){
         echo "executando....2";
     }
+    
 }

@@ -3,6 +3,7 @@ namespace CR0\Interceptor;
 use CR0\Interceptor\DI\ProvideContainer;
 use CR0\Interceptor\DI\Config\ProxyList;
 use DI\Container;
+use LogicException;
 class Kernel
 {
     private static $instance = null;
@@ -33,6 +34,9 @@ class Kernel
     }
     public function addProxy(string $class, string $aspect){
         $this->validClass($class)->validClass($aspect);
+        if (isset($this->proxys[$class])){
+            throw new LogicException('Interceptor 1.0: Não é possivel utilizar mais de 1 aspect p/ a classe original');
+        }
         $this->proxys[$class] = $aspect;
     }    
     /**

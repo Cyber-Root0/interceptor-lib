@@ -3,9 +3,13 @@ namespace Cr0\Interceptor\Code;
 
 use Nette\PhpGenerator\ClassType;
 use Nette\PhpGenerator\PhpNamespace;
+use CR0\Interceptor\Code\Builder\MethodsBuilder;
 use CR0\Interceptor\Aspect\Base;
 use CR0\Interceptor\Kernel;
 
+/**
+ * Generator static files to intercept methods with aspect
+ */
 class Generator
 {
     public string $ext = '.php';
@@ -15,7 +19,7 @@ class Generator
     ) {
     }
     /**
-     * execute
+     * Main execute
      *
      * @return void
      */
@@ -29,10 +33,20 @@ class Generator
                 $this->generate($origem, $aspect, $proxyname);
             }
         }
-    }
+    }    
+    /**
+     * define if can generate new files
+     *
+     * @return bool
+     */
     public function isCache(){
         return true;
-    }
+    }    
+    /**
+     * clear folder if is file
+     *
+     * @return void
+     */
     public function clearFolder(){
         $files = glob($this->path.'/*');  
         foreach($files as $file) { 
@@ -53,13 +67,11 @@ class Generator
     {
         $finalClassname = explode('\\', $proxyname);
         $finalClassname = $finalClassname[count($finalClassname) - 1];
-
         $namespace = new PhpNamespace('CR0\Generated');
-
         $object = $namespace->addClass($finalClassname);
         $object->setExtends($origem);
         $object->addTrait(Base::class);
-        $object = $this->setMethods($object, $aspect);
+        $object = $this->setMethods($object, $origem);
         $namespace->add($object);
         $bodyContent = $namespace->__toString();
         $bodyContent = '<?php'."\n".$bodyContent;
@@ -69,46 +81,32 @@ class Generator
     /**
      * change public methods to private, for call method magics on proxy
      *
-     * @param  object $object
-     * @param  string $aspect
+     * @param  ClassType $object
+     * @param  string $classorigem
      * @return ClassType
      */
-    private function setMethods($object, string $aspect)
+    private function setMethods(ClassType $object, string $classorigem)
     {
-        $clientReflection = new \ReflectionClass($aspect);
-        $methods = $clientReflection->getMethods(\ReflectionMethod::IS_PUBLIC);
-        return $object;
-        /*
-        $clientReflection = new \ReflectionClass($aspect);
-        $methods = $clientReflection->getMethods(\ReflectionMethod::IS_PUBLIC);
-        foreach ($methods as $method) {
-            $methodName = $method->getName();
-            if ($this->rules($methodName)) {
-                $fileName = $method->getFileName();
-                $lines = file($fileName);
-                $start = $method->getStartLine();
-                $end = $method->getEndLine();
-                $methodBody = implode("", array_slice($lines, $start - 1, $end - $start + 1));
-                echo $methodBody."\n\n";
-            }
-        }
-        */
-    }
+        $builderMethods = new MethodsBuilder($object, $classorigem);
+        return $builderMethods->execute();
+    }    
+    /**
+     * save final file
+     *
+     * @param string $content
+     * @param string $fileName
+     * @return void
+     */
     private function save($content, $fileName){
         $file = $this->getFileName($fileName);
         file_put_contents($file, $content);
-    }
-    private function rules(string $methodName): bool
-    {
-        if (
-            str_contains($methodName, 'before') ||
-            str_contains($methodName, 'around') ||
-            str_contains($methodName, 'after')
-        ) {
-            return true;
-        }
-        return false;
-    }
+    }    
+    /**
+     * get complete file name with path
+     *
+     * @param  mixed $methodName
+     * @return string
+     */
     private function getFileName(string $class){
         return $this->path.$class.$this->ext;
     }
