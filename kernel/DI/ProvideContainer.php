@@ -1,7 +1,8 @@
 <?php
 namespace CR0\Interceptor\DI;
-use CR0\Interceptor\Kernel;
+use CR0\Interceptor\DI\Config\Container as StorageContainer;
 use CR0\Interceptor\Code\Generator;
+use CR0\Interceptor\Kernel;
 use DI\Container;
 class ProvideContainer
 {   
@@ -23,7 +24,9 @@ class ProvideContainer
     public function execute() : Container{
         $definitions = $this->remakeDefinition($this->kernel->getProxys(), $this->kernel->getDefinitions());
         $this->codegenerate->execute($this->finaldefination);
-        return new Container($definitions);
+        $container = new Container($definitions);
+        StorageContainer::set($container);
+        return $container;
     }    
     /**
      * update container definiation with new proxy definitions

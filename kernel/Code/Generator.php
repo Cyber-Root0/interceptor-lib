@@ -40,7 +40,7 @@ class Generator
      * @return bool
      */
     public function isCache(){
-        return true;
+        return false;
     }    
     /**
      * clear folder if is file
@@ -72,6 +72,7 @@ class Generator
         $object->setExtends($origem);
         $object->addTrait(Base::class);
         $object = $this->setMethods($object, $origem);
+        $object->addProperty('__aspectobject', null)->addComment('property to storage unic aspect instance');
         $namespace->add($object);
         $bodyContent = $namespace->__toString();
         $bodyContent = '<?php'."\n".$bodyContent;

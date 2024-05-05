@@ -36,7 +36,7 @@ class MethodsBuilder
 	        ->addComment($methodName." intercepted")
             ->setPublic()
 	        ->setReturnType($methodInfo->getReturnType())
-	        ->setBody('return $this->__callAspect(func_num_args() > 0 ? func_get_args() : []);');
+	        ->setBody('return $this->__callAspect(__FUNCTION__, func_num_args() > 0 ? func_get_args() : []);');
         $this->setParams($method, $parameters);
     }
     private function setParams($method, $parameters){
