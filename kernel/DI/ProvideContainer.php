@@ -44,7 +44,7 @@ class ProvideContainer
             ];
             //$definitions[$class] = $finalname;
             $definitions[$class] = function($container) use ($finalname){
-                return new $finalname();
+                return $container->get($finalname);
             };
         }
         return $definitions;

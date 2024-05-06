@@ -17,7 +17,7 @@ class Kernel
      */
     private function __construct(array $definitions = []){
         if (!empty($definitions)){
-            $this->$definitions = $definitions;
+            $this->definitions = $definitions;
         }
         $this->provider = new ProvideContainer($this);
     }    
